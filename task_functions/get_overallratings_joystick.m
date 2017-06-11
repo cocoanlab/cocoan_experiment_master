@@ -1,4 +1,4 @@
-function data = get_overallratings(overall_types, data, rating_types, run_i, tr_i)
+function data = get_overallratings_joystick(overall_types, data, rating_types, run_i, tr_i)
 
 % data = get_overallratings(overall_types, data, rating_types, run_i, tr_i)
 
@@ -11,12 +11,9 @@ Screen(theWindow,'FillRect',bgcolor, window_rect);
 Screen('Flip', theWindow);
 
 ornot = strcmp(overall_types, 'overall_aversive_ornot') || strcmp(overall_types, 'overall_pain_ornot');
-if ornot
-    SetMouse((rb+lb)/2,H/2); % set mouse at the center
-    lb2 = W/3; rb2 = (W*2)/3; % new bound
-else
-    SetMouse(lb,H/2); % set mouse at the left
-end
+
+[joy_pos, joy_button] = mat_joy(0);
+start_joy_pos = joy_pos(1);
 
 rec_i = 0;
 i = strcmp(rating_types.alltypes, overall_types);
@@ -24,7 +21,15 @@ i = strcmp(rating_types.alltypes, overall_types);
 while (1) % button
     rec_i = rec_i+1;
    
-    [x,~,button] = GetMouse(theWindow);
+    %[x,~,button] = GetMouse(theWindow);
+    [joy_pos, joy_button] = mat_joy(0);
+    
+    if ornot
+        x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb2-lb2) + (rb2+lb2)/2; % both direction
+    else
+        x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
+    end
+        
     if ornot
         if x < lb2
             x = lb2;
@@ -39,7 +44,7 @@ while (1) % button
         end
     end
     
-    if button(1), break, end
+    if joy_button(1), break, end
     
     Screen('DrawText', theWindow, rating_types.prompts{i}, W/2-promptW{i}/2,H/2-promptH/2-150,white);
     draw_scale(overall_types); % draw scale

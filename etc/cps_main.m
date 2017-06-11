@@ -91,7 +91,7 @@ function data = cps_main(trial_sequence, varargin)
 global theWindow W H; % window property
 global white red orange bgcolor; % color
 global t r; % pressure device udp channel
-global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH joy_speed; % rating scale
+global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH; % rating scale
 
 %% Parse varargin
 post_stimulus_t = 5; % post-stimulus continuous rating seconds
@@ -99,7 +99,7 @@ doexplain_scale = false;
 testmode = false;
 dofmri = false;
 USE_BIOPAC = false;
-joy_speed = .8; % should be between 0.1 and .95(?) or 1, higher = slower
+window_num = 0; % should be revised...
 
 % need to be specified differently for different computers
 %psytool = 'C:\toolbox\Psychtoolbox';
@@ -145,13 +145,9 @@ if exist('data', 'var'), clear data; end
 bgcolor = 100;
 
 if testmode
-    window_num = 0;
     window_rect = [1 1 1024 500]; % in the test mode, use a little smaller screen
 else
-    screens = Screen('Screens');
-    window_num = screens(end); % the last window
-    window_info = Screen('Resolution', window_num); 
-    window_rect = [0 0 window_info.width window_info.height]; % full screen
+    window_rect = get(window_num, 'MonitorPositions'); % full screen
 %     window_rect = [0 0 1024 768];
 end
 
@@ -354,12 +350,14 @@ try
             end
             
             % RECORD: Time stamp
-            SetMouse(0,0);
+            SetMouse(1024,768);
             data.dat{run_i}{tr_i}.stim_timestamp = GetSecs;
             
             % HERE: STIMULATION ------------------------------------------
             if strcmp(type, 'PP') % pressure pain
                 eval(['fwrite(t, ''1,' PP_int{strcmp(lvs, int)} ',t'');']);
+                WaitSecs(str2double(dur));
+                eval(['fwrite(t, ''1,' PP_int{strcmp(lvs, int)} ',s'');']);
             elseif strcmp(type, 'AU') % aversive auditory
                 play(players{strcmp(lvs, int)});
             % elseif strcmp(type, 'TP')
@@ -383,10 +381,7 @@ try
             % CONTINUOUS RATING
             if ~isempty(rating_types.docont{run_i}{tr_i})
                 
-                [joy_pos, joy_button] = mat_joy(0);
-                start_joy_pos = joy_pos(1);
-                % SetMouse(lb,H/2); % set mouse at the left; we're
-                %                   % currently using joystick instead.
+                SetMouse(lb,H/2); % set mouse at the left
                 
                 % START: Instruction and rating scale
                 deltat = 0;
@@ -395,12 +390,7 @@ try
                     rec_i = rec_i+1; % the number of recordings
                     
                     % Track Mouse coordinate
-                    % x = GetMouse(theWindow);
-                    
-                    % Track joystick coordinate
-                    [joy_pos, joy_button] = mat_joy(0);
-                    x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
-                    % x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction
+                    x = GetMouse(theWindow);
                     
                     if x < lb, x = lb;
                     elseif x > rb, x = rb;
@@ -415,10 +405,7 @@ try
                     Screen('Flip', theWindow);
                 end
             else
-                WaitSecs(str2double(dur));
-                if strcmp(type, 'PP')
-                    eval(['fwrite(t, ''1,' PP_int{strcmp(lvs, int)} ',s'');']);
-                end
+                %WaitSecs(str2double(dur)); 
             end
 
             % commented out for now
@@ -447,7 +434,7 @@ try
                 for overall_i = 1:numel(rating_types.dooverall{run_i}{tr_i})
                     overall_types = rating_types.dooverall{run_i}{tr_i}{overall_i};
                     eval(['data.dat{run_i}{tr_i}.' overall_types '_timestamp = GetSecs;']);
-                    data = get_overallratings_joystick(overall_types, data, rating_types, run_i, tr_i);
+                    data = get_overallratings(overall_types, data, rating_types, run_i, tr_i);
                 end
             end
             
