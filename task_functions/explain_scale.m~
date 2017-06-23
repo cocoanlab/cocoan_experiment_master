@@ -6,7 +6,7 @@ function explain_scale(exp_scale, rating_types)
 global theWindow W H; % window property
 global white red orange bgcolor; % color
 global t r; % pressure device udp channel
-global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH joy_speed; % rating scale
+global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH; % rating scale
 
 
 %% Getting widths for prompts
@@ -58,30 +58,16 @@ for i = 1:numel(exp_scale.inst)
     % SetMouse(lb,H/2); % set mouse at the left
     SetMouse(0,0); % set mouse at the left
     
-    [joy_pos, joy_button] = mat_joy(0);
-    
-    if joy_pos(1) < .1
-        start_joy_pos = joy_pos(1);
-    else
-        start_joy_pos = 0;
-    end
-    
     while (1) % button
         
-        %[x,~,button] = GetMouse(theWindow);
-        [joy_pos, joy_button] = mat_joy(0);
-        
-        x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
-        
+        [x,~,button] = GetMouse(theWindow);
         if x < lb
             x = lb;
         elseif x > rb
             x = rb;
         end
-
-        if joy_button(1), break, end
         
-        draw_scale(overall_types); % draw scale
+        draw_scale(exp_scale.inst{i}); % draw scale
         
         Screen('DrawText',theWindow, prompt_ex{1},W/2-prompt_ex_W{1}/2,100,orange);
         Screen('DrawText',theWindow, rating_types.prompts{prompt_n}, W/2-promptW{prompt_n}/2,H/2-promptH/2-150,white);
@@ -92,7 +78,57 @@ for i = 1:numel(exp_scale.inst)
         end
         Screen('Flip', theWindow);
         
+        if button(1), break, end
     end
+    
+    
+    while (1) % button
+        
+        %[x,~,button] = GetMouse(theWindow);
+        [joy_pos, joy_button] = mat_joy(0);
+        
+        if ornot
+            x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb2-lb2) + (rb2+lb2)/2; % both direction
+        else
+            x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
+        end
+        
+        if ornot
+            if x < lb2
+                x = lb2;
+            elseif x > rb2
+                x = rb2;
+            end
+        else
+            if x < lb
+                x = lb;
+            elseif x > rb
+                x = rb;
+            end
+        end
+        
+        if joy_button(1), break, end
+        
+        Screen('DrawText', theWindow, rating_types.prompts{i}, W/2-promptW{i}/2,H/2-promptH/2-150,white);
+        draw_scale(overall_types); % draw scale
+        Screen('DrawLine', theWindow, orange, x, H/2, x, H/2+scale_W, 6);
+        Screen('Flip', theWindow);
+        
+        cur_t = GetSecs;
+        eval(['data.dat{run_i}{tr_i}.' overall_types '_time_fromstart(rec_i,1) = cur_t-start_t;']);
+        eval(['data.dat{run_i}{tr_i}.' overall_types '_cont_rating(rec_i,1) = (x-lb)./(rb-lb);']);
+        
+        if cur_t-start_t >= 7
+            break
+        end
+        
+    end
+    
+    
+    
+    
+    
+    
     
     % freeze the screen 1 second with red line
     draw_scale(exp_scale.inst{i}); % draw scale

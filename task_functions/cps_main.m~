@@ -105,7 +105,6 @@ joy_speed = .8; % should be between 0.1 and .95(?) or 1, higher = slower
 %psytool = 'C:\toolbox\Psychtoolbox';
 scriptdir = 'C:\Users\cnir\Documents\...';
 % io32dir = 'C:\Program Files\MATLAB\R2012b\toolbox\io32';
-io64dir = 'C:\...'; % need to edit
 savedir = 'CPS_data';
 
 for i = 1:length(varargin)
@@ -134,11 +133,11 @@ end
 addpath(scriptdir); cd(scriptdir);
 % addpath(genpath(psytool));
 
-%% SETUP: BIOPAC
-if USE_BIOPAC
-    trigger_biopac = biopac_setting_io64(io64dir);
-    BIOPAC_PULSE_WIDTH = 1;
-end
+% %% SETUP: BIOPAC
+% if USE_BIOPAC
+%     trigger_biopac = biopac_setting(io32dir);
+%     BIOPAC_PULSE_WIDTH = 1;
+% end
 
 %% SETUP: Screen
 if exist('data', 'var'), clear data; end
@@ -465,7 +464,6 @@ try
             WaitSecs(data.dat{run_i}{tr_i}.iti); % if the next is continuous rating, it should remove one second
             
             if mod(tr_i,2) == 0, save(data.datafile, '-append', 'data'); end % save data every two trials
-            
             SetMouse(0,0);
         end % trial ends
         

@@ -13,7 +13,12 @@ Screen('Flip', theWindow);
 ornot = strcmp(overall_types, 'overall_aversive_ornot') || strcmp(overall_types, 'overall_pain_ornot');
 
 [joy_pos, joy_button] = mat_joy(0);
-start_joy_pos = joy_pos(1);
+
+if joy_pos(1) < .1
+    start_joy_pos = joy_pos(1);
+else
+    start_joy_pos = 0;
+end
 
 rec_i = 0;
 i = strcmp(rating_types.alltypes, overall_types);
