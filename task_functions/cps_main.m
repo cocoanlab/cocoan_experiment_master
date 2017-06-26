@@ -159,7 +159,7 @@ end
 W = window_rect(3); %width of screen
 H = window_rect(4); %height of screen
 font = 'Helvetica';
-fontsize = 18;
+fontsize = 33;
 white = 255;
 red = [158 1 66];
 orange = [255 164 0];
