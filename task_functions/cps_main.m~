@@ -410,10 +410,11 @@ try
                 
                 if use_mouse
                     SetMouse(lb,H/2); % set mouse at the left;
-                elseif use_joystick
-                    [joy_pos, joy_button] = mat_joy(0);
-                    start_joy_pos = joy_pos(1);
-                end
+                elseif use_joy
+                [joy_pos, joy_button] = mat_joy(0);
+                start_joy_pos = joy_pos(1);
+                % we're
+                %                   % currently using joystick instead.
                 
                 % START: Instruction and rating scale
                 deltat = 0;
@@ -421,15 +422,13 @@ try
                     deltat = GetSecs - start_t; 
                     rec_i = rec_i+1; % the number of recordings
                     
-                    if use_mouse
-                        % Track Mouse coordinate
-                        x = GetMouse(theWindow);
-                    elseif use_joystick
-                        % Track joystick coordinate
-                        [joy_pos, joy_button] = mat_joy(0);
-                        x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
-                        % x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction
-                    end
+                    % Track Mouse coordinate
+                    % x = GetMouse(theWindow);
+                    
+                    % Track joystick coordinate
+                    [joy_pos, joy_button] = mat_joy(0);
+                    x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
+                    % x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction
                     
                     if x < lb, x = lb;
                     elseif x > rb, x = rb;

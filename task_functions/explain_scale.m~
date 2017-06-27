@@ -5,6 +5,7 @@ function explain_scale(exp_scale, rating_types, varargin)
 
 global theWindow W H; % window property
 global white red orange bgcolor; % color
+global t r; % pressure device udp channel
 global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH joy_speed; % rating scale
 
 use_joystick = false;
@@ -40,7 +41,7 @@ for i = 1:numel(exp_scale.inst)
             Screen('Flip', theWindow);
             
             if use_joystick
-                [~, joy_button] = mat_joy(0);
+                [joy_pos, joy_button] = mat_joy(0);
             elseif use_mouse
                 [~,~,button] = GetMouse(theWindow);
             end
@@ -106,14 +107,11 @@ for i = 1:numel(exp_scale.inst)
         elseif x > rb
             x = rb;
         end
+
         
-        if use_joystick
-            if joy_button(1), break, end
-        elseif use_mouse
-            if button(1), break, end
-        end
+        if joy_button(1), break, end
         
-        draw_scale(exp_scale.inst{i}); % draw scale
+        draw_scale(overall_types); % draw scale
         
         Screen('DrawText',theWindow, prompt_ex{1},W/2-prompt_ex_W{1}/2,100,orange);
         Screen('DrawText',theWindow, rating_types.prompts{prompt_n}, W/2-promptW{prompt_n}/2,H/2-promptH/2-150,white);
@@ -145,23 +143,14 @@ for i = 1:numel(exp_scale.inst)
             end
             Screen('Flip', theWindow);
             
-            if use_joystick
-                [~, joy_button] = mat_joy(0);
-            elseif use_mouse
-                [~,~,button] = GetMouse(theWindow);
-            end
+            [~,~,button] = GetMouse(theWindow);
             [~,~,keyCode] = KbCheck;
             
-            if use_mouse
-                if button(1), break, end
-            elseif use_joystick
-                if joy_button(1), break, end
-            end
-            
-            if keyCode(KbName('q'))==1
+            if button(1)
+                break
+            elseif keyCode(KbName('q'))==1
                 abort_man;
             end
-            
         end
     else
         while (1) % space
@@ -174,23 +163,14 @@ for i = 1:numel(exp_scale.inst)
             
             Screen('Flip', theWindow);
             
-            if use_joystick
-                [~, joy_button] = mat_joy(0);
-            elseif use_mouse
-                [~,~,button] = GetMouse(theWindow);
-            end
+            [~,~,button] = GetMouse(theWindow);
             [~,~,keyCode] = KbCheck;
             
-            if use_mouse
-                if button(1), break, end
-            elseif use_joystick
-                if joy_button(1), break, end
-            end
-            
-            if keyCode(KbName('q'))==1
+            if button(1)
+                break
+            elseif keyCode(KbName('q'))==1
                 abort_man;
             end
-            
         end
     end
 end
