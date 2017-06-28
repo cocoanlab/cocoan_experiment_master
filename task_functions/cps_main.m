@@ -685,7 +685,7 @@ global white red orange bgcolor; % color
 global t r; % pressure device udp channel
 global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH; % rating scale
 
-i = strcmp(rating_types.alltypes, cont_types);
+i = strcmp(rating_types.alltypes, cont_types); % which one?
 Screen('DrawText', theWindow, rating_types.prompts{i}, W/2-promptW{i}/2,H/2-promptH/2-150,orange);
 draw_scale(cont_types);
 
