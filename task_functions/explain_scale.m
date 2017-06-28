@@ -22,7 +22,6 @@ for i = 1:length(varargin)
     end
 end
 
-
 %% Getting widths for prompts
 prompt_ex_W = cell(numel(prompt_ex),1);
 for i = 1:numel(prompt_ex)
