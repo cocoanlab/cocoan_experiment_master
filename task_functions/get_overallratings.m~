@@ -55,25 +55,17 @@ else
 end
 
 if use_joystick
-    SetMouse(lb,H/2);
+    
+    SetMouse(0,0); % send the mouse to (0,0)
+    
     [joy_pos, joy_button] = mat_joy(0);
     
-    if joy_pos(1) < .1
+    if joy_pos(1) < .1 % make the starting point as 0,0
         start_joy_pos = joy_pos(1);
         start_joy_pos_y = joy_pos(2);
     else
         start_joy_pos = 0;
         start_joy_pos_y = 0;
-    end
-    
-elseif use_mouse
-    
-    if ornot
-        SetMouse((rb+lb)/2,H/2); % set mouse at the center
-    elseif circular
-        SetMouse((rb+lb)/2,bb); % set mouse at the center
-    else
-        SetMouse(lb,H/2); % set mouse at the left
     end
 end
 
@@ -89,8 +81,8 @@ while (1) % button
         if ornot
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb2-lb2) + (rb2+lb2)/2; % both direction
         elseif circular
-            x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % only right direction
-            y = (joy_pos(2)-start_joy_pos_y) ./ joy_speed .* (bb-tb) + tb; % only right direction
+            x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction in x
+            y = (joy_pos(2)-start_joy_pos_y) ./ joy_speed .* (bb-tb) + tb; % upwards in the y direction
         else
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
         end
@@ -98,8 +90,7 @@ while (1) % button
         [x,y,button] = GetMouse(theWindow);
     end
         
-    
-    if ornot
+    if start_center
         
         if x < lb2
             x = lb2;
@@ -107,12 +98,11 @@ while (1) % button
             x = rb2;
         end
         
-    elseif circular
+    elseif semicircular
         % if the point goes further than the semi-circle, move the point to
         % the closest point
-        cir_center = [(rb+lb)/2, bb];
         radius = (rb-lb)/2; % radius
-        theta = atan2(y,x);
+        theta = atan2(cir_center(2)-y,x-cir_center(1));
         
         % send to diameter of semi-circle
         if y < bb
@@ -120,9 +110,9 @@ while (1) % button
         end
         
         % send to arc of semi-circle
-        if sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2) < radius
+        if sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2) > radius
             x = radius*cos(theta)+cir_center(1);
-            y = radius*sin(theta)+cir_center(2);
+            y = cir_center(2)-radius*sin(theta);
         end
         
         % current euclidean distance
@@ -140,18 +130,39 @@ while (1) % button
     end
     
     % button press, then break
-    
-    if use_joystick
-        if joy_button(1), break, end
-    elseif use_mouse
-        if button(1), break, end
-    end 
+    if semicircular
+        if use_joystick 
+            if joy_button(1) && curr_r > radius*.95 % only when the cursur is close to the arc
+                break
+            elseif joy_button(1)
+                joy_button(1) = false;
+            end
+        elseif use_mouse 
+            if button(1) && curr_r > radius*.95
+                break
+            elseif button(1)
+                button(1) = false;
+            end
+        end
+    else
+        if use_joystick
+            if joy_button(1), break, end
+        elseif use_mouse
+            if button(1), break, end
+        end
+    end
     
     % show instruction and the current position
+    if semicircular
+        DrawFormattedText(theWindow, rating_types.prompts{i}, 'center', 20, white, [], [], [], 1.2);
+    else
+        DrawFormattedText(theWindow, rating_types.prompts{i}, 'center', H/2-150, white, [], [], [], 1.2);
+    end
     
-    Screen('DrawText', theWindow, rating_types.prompts{i}, W/2-promptW{i}/2,H/2-promptH/2-150,white);
     draw_scale(overall_types); % draw scale
-    if circular
+    
+    % show the current location
+    if semicircular
         Screen('DrawDots', theWindow, [x y], 7, orange, [0 0], 1);
     else
         Screen('DrawLine', theWindow, orange, x, H/2, x, H/2+scale_H, 6);
@@ -162,9 +173,9 @@ while (1) % button
     cur_t = GetSecs;
     eval(['data.dat{run_i}{tr_i}.' overall_types '_time_fromstart(rec_i,1) = cur_t-start_t;']);
     
-    if circular
-        eval(['data.dat{run_i}{tr_i}.' overall_types '_cont_rating_xy(rec_i,:) = [x y];']);
-        eval(['data.dat{run_i}{tr_i}.' overall_types '_cont_rating_r_theta(rec_i,:) = [curr_r curr_theta];']);
+    if semicircular
+        eval(['data.dat{run_i}{tr_i}.' overall_types '_cont_rating_xy(rec_i,:) = [x-cir_center(1) cir_center(2)-y]./radius;']);
+        eval(['data.dat{run_i}{tr_i}.' overall_types '_cont_rating_r_theta(rec_i,:) = [curr_r/radius curr_theta/180];']);
     else
         eval(['data.dat{run_i}{tr_i}.' overall_types '_cont_rating(rec_i,1) = (x-lb)./(rb-lb);']);
     end
@@ -177,14 +188,14 @@ end
 
 end_t = GetSecs;
 
-% Freeze the screen 0.5 second with red line
+% Freeze the screen 0.5 second with red line or dot
 
 draw_scale(overall_types); % draw scale
-Screen('DrawText', theWindow, rating_types.prompts{i}, W/2-promptW{i}/2,H/2-promptH/2-150,white);
-
-if circular
+if semicircular
+    DrawFormattedText(theWindow, rating_types.prompts{i}, 'center', 20, white, [], [], [], 1.2);
     Screen('DrawDots', theWindow, [x y], 7, red, [0 0], 1);
 else
+    DrawFormattedText(theWindow, rating_types.prompts{i}, 'center', H/2-150, white, [], [], [], 1.2);
     Screen('DrawLine', theWindow, red, x, H/2, x, H/2+scale_H, 6);
 end
 
@@ -195,7 +206,7 @@ WaitSecs(0.5);
 
 if circular
     eval(['data.dat{run_i}{tr_i}.' overall_types '_rating_xy = [x y];']);
-    eval(['data.dat{run_i}{tr_i}.' overall_types '_rating_r_theta = [curr_r curr_theta];']);
+    eval(['data.dat{run_i}{tr_i}.' overall_types '_rating_r_theta = [curr_r/radius curr_theta/180];']);
 else
     eval(['data.dat{run_i}{tr_i}.' overall_types '_rating = (x-lb)./(rb-lb);']);
 end

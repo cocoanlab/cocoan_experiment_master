@@ -275,18 +275,17 @@ try
                 end
                 
                 if dofmri
-                    % gap between 5 key push and the first stimuli (disdaqs: 10 seconds)
-                    % 5 seconds: "Starting..."
-                    [stimtext_W, stimtext_H] = Screen(theWindow,'DrawText','Starting...',0,0);
+                    % gap between 5 key push and the first stimuli (disdaqs: data.disdaq_sec)
+                    % 5 seconds: "시작합니다..."
                     Screen(theWindow, 'FillRect', bgcolor, window_rect);
-                    Screen(theWindow, 'DrawText', 'Starting...', W/2-stimtext_W/2, H/2-stimtext_H/2,255);
+                    DrawFormattedText(theWindow, double('시작합니다...'), 'center', 'center', white, [], [], [], 1.2);
                     Screen('Flip', theWindow);
+                    data.dat{run_i}{tr_i}.runscan_starttime = GetSecs;
                     WaitSecs(4);
                     
                     % 5 seconds: Blank
                     Screen(theWindow,'FillRect',bgcolor, window_rect);
                     Screen('Flip', theWindow);
-                    data.dat{run_i}{tr_i}.runscan_starttime = GetSecs;
                     WaitSecs(4); % ADJUST THIS
                 end
                 
@@ -299,31 +298,23 @@ try
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
                 Screen('Flip', theWindow);
                 WaitSecs(2); % ADJUST THIS
-                
+                data.dat{run_i}{tr_i}.firsttrial_starttime = GetSecs;
             end
             
             % HERE: CUE or FIXATION CROSS --------------------------------
             cue_t = str2double(trial_sequence{run_i}{tr_i}{5});
             data.dat{run_i}{tr_i}.cue_timestamp = GetSecs;
+            
             %if USE_BIOPAC, feval(trigger_biopac,BIOPAC_PULSE_WIDTH); end
             if cue_t > 0 % if cue_t == 0, this is not running.
-                try
-                    if ~isempty(trial_sequence{run_i}{tr_i}{8})
-                        stimtext = trial_sequence{run_i}{tr_i}{8};
-                        [stimtext_W, stimtext_H] = Screen(theWindow,'DrawText',stimtext,0,0);
-                    else
-                        stimtext = '+';
-                        stimtext_W = fixW;
-                        stimtext_H = fixH;
-                    end
-                catch
+                if ~isempty(trial_sequence{run_i}{tr_i}{8})
+                	stimtext = trial_sequence{run_i}{tr_i}{8};
+                else
                     stimtext = '+';
-                    stimtext_W = fixW;
-                    stimtext_H = fixH;
                 end
                 
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
-                Screen(theWindow,'DrawText',stimtext, W/2-stimtext_W/2, H/2-stimtext_H/2,255);
+                DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
                 Screen('Flip', theWindow);
                 WaitSecs(cue_t-.5);
                 
@@ -340,25 +331,22 @@ try
             % HERE: picture or other texts can be added
             try
                 stimtext = trial_sequence{run_i}{tr_i}{9};
-                [stimtext_W, stimtext_H] = Screen(theWindow,'DrawText',stimtext,0,0); 
             catch
                 stimtext = '+';
-                stimtext_W = fixW;
-                stimtext_H = fixH;
             end
             
-            Screen(theWindow,'FillRect', bgcolor, window_rect); % Fixation cross disappear
-            Screen(theWindow,'DrawText', stimtext, W/2-stimtext_W/2, H/2-stimtext_H/2, 255);
+            Screen(theWindow,'FillRect', bgcolor, window_rect); 
+            DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
             Screen('Flip', theWindow);
             
             % For continuous rating, show rating instruction before stimulus starts
-            % This will add one second to the ITI.. I changed into 0s again.
             if ~isempty(rating_types.docont{run_i}{tr_i})
                 cont_types = rating_types.docont{run_i}{tr_i}{1};
                 eval(['data.dat{run_i}{tr_i}.' cont_types '_timestamp = GetSecs;']);
+                
+                Screen(theWindow,'FillRect', bgcolor, window_rect); 
                 show_cont_prompt(cont_types, rating_types);
                 Screen('Flip', theWindow);
-                % WaitSecs(1);
             end
             
             % RECORD: Time stamp
@@ -370,21 +358,21 @@ try
                 eval(['fwrite(t, ''1,' PP_int{strcmp(lvs, int)} ',t'');']);
             elseif strcmp(type, 'AU') % aversive auditory
                 play(players{strcmp(lvs, int)});
-            % elseif strcmp(type, 'TP')
+            % elseif strcmp(type, 'TP') % see mpa2 code
             % elseif strcmp(type, 'VI')
             end
             
             start_t = GetSecs; 
 
-            % commented out for now
-%             if strcmp(type, 'PP')
-%                 message_1 = deblank(fscanf(r));
-%                 if strcmp(message_1,'Read Error')
-%                     error(message_1);
-%                 else
-%                     data.dat{run_i}{tr_i}.logfile = message_1;
-%                 end
-%             end
+            % read message from PPD
+            if strcmp(type, 'PP')
+                message_1 = deblank(fscanf(r));
+                if strcmp(message_1,'Read Error')
+                    error(message_1);
+                else
+                    data.dat{run_i}{tr_i}.logfile = message_1;
+                end
+            end
             
             rec_i = 0;
             
@@ -394,7 +382,7 @@ try
                 if use_mouse
                     SetMouse(lb,H/2); % set mouse at the left;
                 elseif use_joystick
-                    [joy_pos, joy_button] = mat_joy(0);
+                    joy_pos = mat_joy(0);
                     start_joy_pos = joy_pos(1);
                 end
                 
@@ -405,11 +393,9 @@ try
                     rec_i = rec_i+1; % the number of recordings
                     
                     if use_mouse
-                        % Track Mouse coordinate
                         x = GetMouse(theWindow);
                     elseif use_joystick
-                        % Track joystick coordinate
-                        [joy_pos, joy_button] = mat_joy(0);
+                        joy_pos  = mat_joy(0);
                         x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
                         % x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction
                     end
@@ -433,14 +419,14 @@ try
                 end
             end
 
-            % commented out for now
-%             if strcmp(type, 'PP')
-%                 message_2 = deblank(fscanf(r));
-%                 if ~strcmp(message_2, 's')
-%                     disp(message_2);
-%                     error('message_2 is not s.');
-%                 end % make sure if the stimulus ends
-%             end
+            % make sure if the pressure stimulus ends
+            if strcmp(type, 'PP')
+                message_2 = deblank(fscanf(r));
+                if ~strcmp(message_2, 's')
+                    disp(message_2);
+                    error('message_2 is not s.');
+                end 
+            end
             
             end_t = GetSecs;
             data.dat{run_i}{tr_i}.total_dur_recorded = end_t - start_t;
@@ -471,9 +457,9 @@ try
             data.dat{run_i}{tr_i}.isi = str2double(trial_sequence{run_i}{tr_i}{7});
             data.dat{run_i}{tr_i}.iti = data.dat{run_i}{tr_i}.isi - data.dat{run_i}{tr_i}.overall_RT;
             if data.dat{run_i}{tr_i}.iti <= 0
-                data.dat{run_i}{tr_i}.iti = 0.01;
+                data.dat{run_i}{tr_i}.iti = 1;
             end
-            WaitSecs(data.dat{run_i}{tr_i}.iti); % if the next is continuous rating, it should remove one second
+            WaitSecs(data.dat{run_i}{tr_i}.iti); % if the next is continuous rating, please sub
             
             if mod(tr_i,2) == 0, save(data.datafile, '-append', 'data'); end % save data every two trials
             
@@ -539,16 +525,12 @@ function display_runmessage(run_i, run_num, dofmri)
 
 % MESSAGE FOR EACH RUN
 
-% HERE: YOU CAN ADD MESSAGES FOR EACH RUN
-%       You can use two lines of message. For now, I'm using one line.
+% HERE: YOU CAN ADD MESSAGES FOR EACH RUN USING RUN_NUM and RUN_I
 
-global theWindow W H; % window property
-global white red orange bgcolor; % color
-global t r; % pressure device udp channel
-global window_rect lb rb scale_H anchor_y anchor_y2 anchor promptW promptH; % rating scale
+global theWindow white bgcolor window_rect; % rating scale
 
 if dofmri
-    if run_i <= run_num % 5
+    if run_i <= run_num % you can customize the run start message using run_num and run_i
         Run_start_text = double('피험자가 준비되었으면, 이미징을 시작합니다 (s).');
     end
 else
@@ -557,38 +539,29 @@ else
     end
 end
 
-% runtextW: the max width for two lines of message
-for jj = 1:numel(Run_start_text)
-    runtextW{jj} = Screen('DrawText',theWindow,Run_start_text{jj},0,0);
-end
-
 % display
 Screen(theWindow,'FillRect',bgcolor, window_rect);
-for jj = 1:numel(Run_start_text)
-    Screen('DrawText',theWindow,Run_start_text{jj},W/2-runtextW{jj}/2,H/2+promptH*(jj-1)-150,white);
-end
+DrawFormattedText(theWindow, Run_start_text, 'center', 'center', white, [], [], [], 1.2);
 Screen('Flip', theWindow);
 
 end
 
 function display_runending_message(run_i, run_num)
 
-global theWindow window_rect; % window property
-global white red orange bgcolor; % color
+global theWindow window_rect white bgcolor; % color
 
 % MESSAGE FOR EACH RUN
 
 % HERE: YOU CAN ADD MESSAGES FOR EACH RUN
-%       You can use two lines of message. For now, I'm using one line.
-clear Run_end_text;
+
 if run_i < run_num
-    Run_end_text{1} = [num2str(run_i) '번 세션을 마쳤습니다.\n피험자가 다음 세션을 진행할 준비가 되면, 스페이스바를 눌러주세요.'];
+    Run_end_text = double([num2str(run_i) '번 세션을 마쳤습니다.\n피험자가 다음 세션을 진행할 준비가 되면, 스페이스바를 눌러주세요.']);
 else
-    Run_end_text{1} = '실험의 이번 파트를 마쳤습니다.\n프로그램에서 나가기 위해서는, 스페이스바를 눌러주세요.';
+    Run_end_text = double('실험의 이번 파트를 마쳤습니다.\n프로그램에서 나가기 위해서는, 스페이스바를 눌러주세요.');
 end
     
 Screen(theWindow,'FillRect',bgcolor, window_rect);
-DrawFormattedText(theWindow, Run_end_text, 'center', 'center', white, [], [], [], 1.5);
+DrawFormattedText(theWindow, Run_end_text, 'center', 'center', white, [], [], [], 1.2);
 Screen('Flip', theWindow);
 
 end
@@ -661,13 +634,10 @@ end
 
 function show_cont_prompt(cont_types, rating_types)
 
-global theWindow W H; % window property
-global white red orange bgcolor; % color
-global t r; % pressure device udp channel
-global window_rect lb rb scale_H anchor_y anchor_y2 anchor promptW promptH; % rating scale
+global theWindow orange;
 
 i = strcmp(rating_types.alltypes, cont_types); % which one?
-Screen('DrawText', theWindow, rating_types.prompts{i}, W/2-promptW{i}/2,H/2-promptH/2-150,orange);
+DrawFormattedText(theWindow, double(rating_types.prompts{i}), 'center', 'center', orange, [], [], [], 1.2);
 draw_scale(cont_types);
 
 end

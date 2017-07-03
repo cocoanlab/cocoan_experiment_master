@@ -457,9 +457,9 @@ try
             data.dat{run_i}{tr_i}.isi = str2double(trial_sequence{run_i}{tr_i}{7});
             data.dat{run_i}{tr_i}.iti = data.dat{run_i}{tr_i}.isi - data.dat{run_i}{tr_i}.overall_RT;
             if data.dat{run_i}{tr_i}.iti <= 0
-                data.dat{run_i}{tr_i}.iti = 0.01;
+                data.dat{run_i}{tr_i}.iti = .01;
             end
-            WaitSecs(data.dat{run_i}{tr_i}.iti); % if the next is continuous rating, it should remove one second
+            WaitSecs(data.dat{run_i}{tr_i}.iti); % ???if the next is continuous rating, it should remove one second
             
             if mod(tr_i,2) == 0, save(data.datafile, '-append', 'data'); end % save data every two trials
             
