@@ -308,13 +308,17 @@ try
             %if USE_BIOPAC, feval(trigger_biopac,BIOPAC_PULSE_WIDTH); end
             if cue_t > 0 % if cue_t == 0, this is not running.
                 if ~isempty(trial_sequence{run_i}{tr_i}{8})
-                	stimtext = trial_sequence{run_i}{tr_i}{8};
+                    stimtext = trial_sequence{run_i}{tr_i}{8};
                 else
                     stimtext = '+';
                 end
                 
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
-                DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
+                if draw_cue
+                    draw_social_cue(mean, std, n, rating_type);
+                else
+                    DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
+                end
                 Screen('Flip', theWindow);
                 WaitSecs(cue_t-.5);
                 
