@@ -55,17 +55,25 @@ else
 end
 
 if use_joystick
-    
-    SetMouse(0,0); % send the mouse to (0,0)
-    
+    SetMouse(lb,H/2);
     [joy_pos, joy_button] = mat_joy(0);
     
-    if joy_pos(1) < .1 % make the starting point as 0,0
+    if joy_pos(1) < .1
         start_joy_pos = joy_pos(1);
         start_joy_pos_y = joy_pos(2);
     else
         start_joy_pos = 0;
         start_joy_pos_y = 0;
+    end
+    
+elseif use_mouse
+    
+    if ornot
+        SetMouse((rb+lb)/2,H/2); % set mouse at the center
+    elseif circular
+        SetMouse((rb+lb)/2,bb); % set mouse at the center
+    else
+        SetMouse(lb,H/2); % set mouse at the left
     end
 end
 

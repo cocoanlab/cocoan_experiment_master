@@ -32,6 +32,6 @@ for i = 1:run_num
 end
 
 % get rating types and rating instructions
-rating_types = rating_repository(rating_types);
+rating_types = rating_prompt_repository(rating_types);
 
 end

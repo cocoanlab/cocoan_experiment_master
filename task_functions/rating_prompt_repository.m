@@ -1,6 +1,6 @@
-function rating_types = rating_repository(rating_types)
+function rating_types = rating_prompt_repository(rating_types)
 
-% rating_types = rating_repository(rating_types)
+% rating_types = rating_prompt_repository(rating_types)
 %
 % Repository for rating types and prompts for the rating types
 

@@ -5,7 +5,7 @@ function explain_scale(exp_scale, rating_types, varargin)
 
 global theWindow W H; % window property
 global white red orange bgcolor; % color
-global window_rect prompt_ex lb rb scale_W anchor_y anchor_y2 anchor promptW promptH joy_speed; % rating scale
+global window_rect lb rb scale_H promptW promptH joy_speed; % rating scale
 
 use_joystick = false;
 use_mouse = false;
@@ -21,6 +21,9 @@ for i = 1:length(varargin)
         end
     end
 end
+
+%% Prompt setup
+prompt_ex = prompt_setup; 
 
 %% Getting widths for prompts
 prompt_ex_W = cell(numel(prompt_ex),1);
@@ -117,9 +120,9 @@ for i = 1:numel(exp_scale.inst)
         Screen('DrawText',theWindow, prompt_ex{1},W/2-prompt_ex_W{1}/2,100,orange);
         Screen('DrawText',theWindow, rating_types.prompts{prompt_n}, W/2-promptW{prompt_n}/2,H/2-promptH/2-150,white);
         if strncmp(exp_scale.inst{i}, 'cont_', 5)
-            Screen('DrawLine', theWindow, white, x, H/2, x, H/2+scale_W, 6);
+            Screen('DrawLine', theWindow, white, x, H/2, x, H/2+scale_H, 6);
         else
-            Screen('DrawLine', theWindow, orange, x, H/2, x, H/2+scale_W, 6);
+            Screen('DrawLine', theWindow, orange, x, H/2, x, H/2+scale_H, 6);
         end
         Screen('Flip', theWindow);
         
@@ -129,7 +132,7 @@ for i = 1:numel(exp_scale.inst)
     draw_scale(exp_scale.inst{i}); % draw scale
     Screen('DrawText',theWindow, prompt_ex{1},W/2-prompt_ex_W{1}/2,100,orange);
     Screen('DrawText',theWindow, rating_types.prompts{prompt_n}, W/2-promptW{prompt_n}/2,H/2-promptH/2-150,white);
-    Screen('DrawLine', theWindow, red, x, H/2, x, H/2+scale_W, 6);
+    Screen('DrawLine', theWindow, red, x, H/2, x, H/2+scale_H, 6);
     Screen('Flip', theWindow);
     WaitSecs(1);
     
@@ -193,5 +196,24 @@ for i = 1:numel(exp_scale.inst)
         end
     end
 end
+
+end
+
+
+function prompt_ex = prompt_setup
+
+% prompt = prompt_setup
+
+%% Instructions
+prompt_ex{1} = '척도 연습: 실험자가 어떻게 반응 척도를 사용할 지에 대해 설명할 것입니다 (실험자, 스페이스를 눌러주세요).';
+prompt_ex{2} = '척도 연습: 반응 척도의 사용을 연습해 보세요 (좌우이동). 연습을 마치신 후에는 버튼을 누르시면 됩니다.';
+prompt_ex{3} = '잘 하셨습니다! 다음 화면으로 가시려면 버튼을 눌러주세요.';
+
+%% some additional instructions
+prompt_ex{4} = '안녕하세요. 실험을 곧 시작하도록 하겠습니다. 먼저 반응 척도를 연습하는 것부터 해보겠습니다.';
+prompt_ex{5} = '준비가 되셨으면 버튼을 눌러주세요.';
+prompt_ex{6} = '연습을 할 때는 버튼을 누르셨지만 실제 실험에서 연속반응을 보고할 시에는 버튼을 누르실 필요가 없습니다.';
+prompt_ex{7} = '잘 하셨습니다! 이제 연습을 마치고 실제 실험에 들어가도록 하겠습니다.';
+prompt_ex{8} = '준비가 되셨으면 버튼을 눌러주세요.';
 
 end
