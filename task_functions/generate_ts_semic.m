@@ -19,7 +19,6 @@ for i = 1:length(varargin)
     end
 end
 
-
 switch session_n
     case 1
         
@@ -102,25 +101,63 @@ switch session_n
         
     case 3
         
-        for j = 1:4, rating_lv{j} = []; end
+        S3{1} = repmat({'PP'}, 48, 1);
+        S3{2} = reshape(repmat({'LV1'; 'LV2'; 'LV3'}, 1, 16)', [], 1);
+        S3{3} = repmat({'0010'}, 48, 1);
+        S3{5} = repmat({'3'}, 48, 1);
+        S3{6} = repmat({'5', '11'; '7', '9'; '9', '7'; '11', '5'}, 12, 1);
+        
+        if semicircular
+            S3{4} = repmat({'overall_avoidance_semicircular'}, 48, 1);
+        else
+            S3{4} = repmat({'overall_avoidance'}, 48, 1);
+        end
+        
+        % make S3{7}
+        for j = 1:3, rating_lv{j} = []; end
         for trial_i = 1:numel(data.dat{1})
             rating_lv{str2double(data.dat{1}{trial_i}.intensity(end))}(end+1) = data.dat{1}{trial_i}.overall_avoidance_rating;
         end
         
         ref_mean = cellfun(@mean, rating_lv)';
         ref_bounds = [ref_mean - mean(diff(ref_mean)) ref_mean + mean(diff(ref_mean))]; % column 1: lower bound, column 2: upper bound
-
-        % linspace
-        % standard deviation
         
-        for i=1:3   %for each intensity, fill in ref
-            average=mean(ref_mean(i));
-            ref=linspace(average-mean(diff(ref_mean)), average+mean(diff(ref_mean)),4);
-            [A,B]=meshgrid(ref, std);
-            ref(16*i-15: 16*i,:)=reshape(cat(2,A',B'),[],2);
+        std=[.01 .02 .05 .08];
+        
+        for i = 1:3
+            temp_bounds(i,:) = linspace(ref_bounds(i,1), ref_bounds(i,2), 4);
+            [A,B] = meshgrid(temp_bounds(i,:), std);
+            ref(16*i-15:16*i, :) = reshape(cat(2, A', B'), [], 2);
         end
-        ref=ref(randperm(48),:);
         
-end
+        for l = 1:size(ref,1)
+            S3{7}{l,1} = [S3{2}(1) {'draw_social_cue', [ref(l,1), ref(l,2), 20]}];
+        end
+        
+        for k = 1:numel(S3)
+            for run_i = 1 % 
+                temp = S3{k}(randperm(trial_n),:);
+                switch k
+                    case {1, 3, 5}
+                        for j = 1:trial_n
+                            ts{run_i}{j}(k) = temp(j);
+                        end
+                    case 4
+                        for j = 1:trial_n
+                            ts{run_i}{j}(4) = {temp(j)};
+                        end
+                    case 6
+                        for j = 1:trial_n
+                            ts{run_i}{j}(6) = temp(j,1);
+                            ts{run_i}{j}(7) = temp(j,2);
+                        end
+                    case 7
+                        for j = 1:trial_n
+                            ts{run_i}{j}(2) = temp{j}(1);
+                            ts{run_i}{j}(8) = temp{j}(2:3);
+                        end
+                end
+            end
+        end
 
 end

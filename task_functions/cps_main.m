@@ -132,6 +132,9 @@ for i = 1:length(varargin)
                 dofmri = true;
             case {'biopac'}
                 USE_BIOPAC = true;
+                channel_n = 3;
+                biopac_channel = 0;
+                ljHandle = BIOPAC_setup(channel_n); % BIOPAC SETUP
             case {'joystick'}
                 rating_device = 'joystick';
                 use_mouse = false;
@@ -145,11 +148,6 @@ end
 addpath(scriptdir); cd(scriptdir);
 % addpath(genpath(psytool));
 
-%% SETUP: BIOPAC
-if USE_BIOPAC
-    trigger_biopac = biopac_setting_io64(io64dir);
-    BIOPAC_PULSE_WIDTH = 1;
-end
 
 %% SETUP: Screen
 if exist('data', 'var'), clear data; end
@@ -295,12 +293,17 @@ try
                 % 1 seconds: BIOPAC
                 if USE_BIOPAC
                     data.dat{run_i}{tr_i}.biopac_triggertime = GetSecs;
-                    feval(trigger_biopac,BIOPAC_PULSE_WIDTH); 
+                    BIOPAC_trigger(ljHandle, biopac_channel, 'on');
                 end
                 
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
                 Screen('Flip', theWindow);
                 WaitSecs(2); % ADJUST THIS
+                
+                if USE_BIOPAC
+                    BIOPAC_trigger(ljHandle, biopac_channel, 'off');
+                end
+
                 data.dat{run_i}{tr_i}.firsttrial_starttime = GetSecs;
             end
             
@@ -308,7 +311,6 @@ try
             cue_t = str2double(trial_sequence{run_i}{tr_i}{5});
             data.dat{run_i}{tr_i}.cue_timestamp = GetSecs;
             
-            %if USE_BIOPAC, feval(trigger_biopac,BIOPAC_PULSE_WIDTH); end
             if cue_t > 0 % if cue_t == 0, this is not running.
                 if ~isempty(trial_sequence{run_i}{tr_i}{8})
                     stimtext = trial_sequence{run_i}{tr_i}{8};
