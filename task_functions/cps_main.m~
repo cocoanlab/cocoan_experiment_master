@@ -69,7 +69,10 @@ function data = cps_main(trial_sequence, varargin)
 %     '3': interval between stimulation and ratings: 3 seconds
 %     '7': inter_stim_interval: This defines the interval from the time the rating starts
 %          to the next trial starts. Actual ITI will be this number minus RT.
-%     ** optional: Using 8th cell array, you can specify cue text
+%     ** optional: Using 8th cell array, you can specify cue text.
+%                       Or you can also use social cues. In this case, the 8th cell array 
+%                       should contain social cue information in the following format:
+%                            {'draw_social_cue', [m, sd, n]})
 %                  Using 9th cell array, you can specify text during stimulation
 %
 % trial_sequence{1}{2} = {'AU', 'LV2', '0010', {'overall_int'}, '0', '3', '7', 'How much pressure?'};
@@ -308,20 +311,28 @@ try
             %if USE_BIOPAC, feval(trigger_biopac,BIOPAC_PULSE_WIDTH); end
             if cue_t > 0 % if cue_t == 0, this is not running.
                 if ~isempty(trial_sequence{run_i}{tr_i}{8})
-                	stimtext = trial_sequence{run_i}{tr_i}{8};
+                    stimtext = trial_sequence{run_i}{tr_i}{8};
                 else
                     stimtext = '+';
                 end
                 
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
-                DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
+                if iscell(stimtext) && strcmp(stimtext{1}, 'draw_social_cue')
+                    social_m = stimtext{2}(1);
+                    social_sd = stimtext{2}(2);
+                    social_n = stimtext{2}(3);
+                    draw_social_cue(social_m, social_sd, social_n, rating_types.dooverall{run_i}{tr_i}{1}); % use the first rating_type in "dooverall"
+                else
+                    DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
+                end
                 Screen('Flip', theWindow);
-                WaitSecs(cue_t-.5);
+                WaitSecs(3);
                 
                 % 0.5 sec with blank
+                data.dat{run_i}{tr_i}.cue_end_timestamp = GetSecs;
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
                 Screen('Flip', theWindow);
-                WaitSecs(.5);
+                WaitSecs(cue_t-3);
             end
             
             % SETUP: Trial stimulus
@@ -457,9 +468,9 @@ try
             data.dat{run_i}{tr_i}.isi = str2double(trial_sequence{run_i}{tr_i}{7});
             data.dat{run_i}{tr_i}.iti = data.dat{run_i}{tr_i}.isi - data.dat{run_i}{tr_i}.overall_RT;
             if data.dat{run_i}{tr_i}.iti <= 0
-                data.dat{run_i}{tr_i}.iti = 1;
+                data.dat{run_i}{tr_i}.iti = .01;
             end
-            WaitSecs(data.dat{run_i}{tr_i}.iti); % if the next is continuous rating, please sub
+            WaitSecs(data.dat{run_i}{tr_i}.iti); % ???if the next is continuous rating, it should remove one second
             
             if mod(tr_i,2) == 0, save(data.datafile, '-append', 'data'); end % save data every two trials
             

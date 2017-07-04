@@ -9,6 +9,9 @@ function [run_num, trial_num, runstart, trial_start, rating_types] = parse_trial
 %
 % see rating_repository for all types of ratings we can use 
 
+% get rating types and rating instructions
+rating_types = rating_prompt_repository;
+
 run_num = numel(trial_sequence);
 idx = zeros(run_num+1,1); % index to calculate trial_start
 trial_num = zeros(run_num,1);
@@ -30,8 +33,5 @@ for i = 1:run_num
         end
     end
 end
-
-% get rating types and rating instructions
-rating_types = rating_prompt_repository(rating_types);
 
 end

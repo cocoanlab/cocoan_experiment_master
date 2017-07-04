@@ -69,7 +69,10 @@ function data = cps_main(trial_sequence, varargin)
 %     '3': interval between stimulation and ratings: 3 seconds
 %     '7': inter_stim_interval: This defines the interval from the time the rating starts
 %          to the next trial starts. Actual ITI will be this number minus RT.
-%     ** optional: Using 8th cell array, you can specify cue text
+%     ** optional: Using 8th cell array, you can specify cue text.
+%                       Or you can also use social cues. In this case, the 8th cell array 
+%                       should contain social cue information in the following format:
+%                            {'draw_social_cue', [m, sd, n]})
 %                  Using 9th cell array, you can specify text during stimulation
 %
 % trial_sequence{1}{2} = {'AU', 'LV2', '0010', {'overall_int'}, '0', '3', '7', 'How much pressure?'};
@@ -314,18 +317,22 @@ try
                 end
                 
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
-                if draw_cue
-                    draw_social_cue(mean, std, n, rating_type);
+                if iscell(stimtext) && strcmp(stimtext{1}, 'draw_social_cue')
+                    social_m = stimtext{2}(1);
+                    social_sd = stimtext{2}(2);
+                    social_n = stimtext{2}(3);
+                    draw_social_cue(social_m, social_sd, social_n, rating_types.dooverall{run_i}{tr_i}{1}); % use the first rating_type in "dooverall"
                 else
                     DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
                 end
                 Screen('Flip', theWindow);
-                WaitSecs(cue_t-.5);
+                WaitSecs(3);
                 
-                % 0.5 sec with blank
+                % (cue_t - 3) seconds with blank
+                data.dat{run_i}{tr_i}.cue_end_timestamp = GetSecs;
                 Screen(theWindow,'FillRect',bgcolor, window_rect);
                 Screen('Flip', theWindow);
-                WaitSecs(.5);
+                WaitSecs(cue_t-3);
             end
             
             % SETUP: Trial stimulus

@@ -1,4 +1,4 @@
-function rating_types = rating_prompt_repository(rating_types)
+function rating_types = rating_prompt_repository
 
 % rating_types = rating_prompt_repository(rating_types)
 %
@@ -45,7 +45,8 @@ temp_rating_types = {'cont_int', '현재 느껴지는 통증의 세기를 지속적으로 보고해 
     'overall_mood', '방금 세션동안 기분은 어땠나요?';...
     'overall_comfortness', '지금 얼마나 편안한가요?';...
     'overall_avoidance_semicircular', '앞으로 이 경험을 피하고 싶은 정도를 보고해주세요.';...
-    'overall_motor', '앞으로 이 경험을 피하고 싶은 정도를 보고해주세요.';...};
+    'overall_motor', '앞으로 이 경험을 피하고 싶은 정도를 보고해주세요.'};
+
 rating_types.alltypes = temp_rating_types(:,1);
 rating_types.prompts = temp_rating_types(:,2);
 

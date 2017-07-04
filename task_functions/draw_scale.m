@@ -1,4 +1,4 @@
-function draw_scale_170519(scale)
+function draw_scale(scale)
 
 % DRAWRING SCALES
 % draw_scale(scale)
