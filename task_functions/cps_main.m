@@ -111,7 +111,7 @@ use_joystick = false;
 % need to be specified differently for different computers
 % psytool = 'C:\toolbox\Psychtoolbox';
 scriptdir = 'C:\Users\cnir\Documents\...';
-savedir = 'CPS_data';
+savedir = 'data';
 
 for i = 1:length(varargin)
     if ischar(varargin{i})
@@ -141,6 +141,8 @@ for i = 1:length(varargin)
                 use_joystick = true;
             case {'mouse', 'trackball'}
                 % do nothing
+            case {'savedir'}
+                savedir = varargin{i+1};
         end
     end
 end
@@ -156,8 +158,8 @@ bgcolor = 100;
 
 if testmode
     window_num = 0;
-    window_rect = [1 1 1024 500]; % in the test mode, use a little smaller screen
-    % window_rect = [0 0 1900 1200];
+%     window_rect = [1 1 1024 500]; % in the test mode, use a little smaller screen
+    window_rect = [0 0 1900 1200];
     fontsize = 20;
 else
     screens = Screen('Screens');

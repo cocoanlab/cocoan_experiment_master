@@ -1,19 +1,19 @@
 %% RUN 1-4:
 
 for kk = 1%:50
-    ts = generate_ts_cps;
+    ts = generate_ts_semic(3);
     
-    t = zeros(1,4);
-    for i = 1:4
+    t = zeros(1,numel(ts));
+    for i = 1:numel(ts)
         for j = 1:numel(ts{i})
             t(i) = t(i) + ...
-                str2double(ts{i}{j}{3}) + str2double(ts{i}{j}{6}) + ...
-                str2double(ts{i}{j}{7});
+                str2double(ts{i}{j}{3}) + str2double(ts{i}{j}{5}) + ...
+                str2double(ts{i}{j}{6}) + str2double(ts{i}{j}{7});
         end
     end
     
     t = t + 13;
-    tr(kk) = max(ceil((t*1000)/473));
+    tr(kk) = max(ceil((t*1000)/460));
     tt(kk) = max(t/60);
     %fprintf('\n# TR = %d, Total time = %f minutes', tr, tt);
     
@@ -37,4 +37,4 @@ for kk = 1%:50
 end
 
 fprintf('\n# TR = %d, Total time = %f minutes', max(tr), max(tt));
-fprintf('\n# TR = %d, Total time = %f minutes\n', max(tr2), max(tt2));
+% fprintf('\n# TR = %d, Total time = %f minutes\n', max(tr2), max(tt2));
