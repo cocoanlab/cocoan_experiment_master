@@ -32,10 +32,10 @@ switch scale
     case 'overall_avoidance'
         xy = [lb H/2+scale_H; rb H/2+scale_H; rb H/2];
         Screen(theWindow, 'FillPoly', 255, xy);
-        Screen(theWindow,'DrawText','Not',lb-35,anchor_y,255);
-        Screen(theWindow,'DrawText','at all',lb-35,anchor_y2,255);
-        Screen(theWindow,'DrawText','Most',rb,anchor_y,255);
-        Screen(theWindow,'DrawText',' ',rb,anchor_y2,255);
+        Screen('TextSize', theWindow, 28); % fonsize for anchors
+        Screen(theWindow,'DrawText',double('전혀'),lb-35,anchor_y,255);
+        Screen(theWindow,'DrawText',double('최대'),rb,anchor_y,255);
+        Screen('TextSize', theWindow, fontsize); % fonsize for anchors
         % Screen('Flip', theWindow);
     case 'overall_unpleasant'
         xy = [lb H/2+scale_H; rb H/2+scale_H; rb H/2];
@@ -426,18 +426,19 @@ switch scale
         ycenter = bb;
         
         radius = (rb-lb)/2; % radius
-        xy = [linspace(lb,rb,1000); sqrt(radius.^2 - (x-xcenter).^2)];
+        x = reshape(repmat(linspace(lb,rb,1000),2,1),1,2000); x([1 2000]) = [];
+        xy = [x; bb - sqrt(radius.^2 - (x-xcenter).^2)];
         
-        anchor_W = Screen(theWindow,'DrawText', double('전혀 그렇지 않다'), 0, 0, bgcolor);
-        anchor_W2 = Screen(theWindow,'DrawText', double('매우 그렇다'), 0, 0, bgcolor);
+        Screen('TextSize', theWindow, 28); % fonsize for anchors
         
-        Screen(theWindow, 'FillRect', bgcolor, window_rect); % reset
+        anchor_W = Screen(theWindow,'DrawText', double('전혀'), 0, 0, bgcolor);
+        anchor_W2 = Screen(theWindow,'DrawText', double('최대'), 0, 0, bgcolor);
+        
+        % Screen(theWindow, 'FillRect', bgcolor, window_rect); % reset
         Screen(theWindow,'DrawLines', xy, 3, 255);
         
-        Screen('TextSize', theWindow, 22); % fonsize for anchors
-        
-        Screen(theWindow,'DrawText', double('전혀 그렇지 않다'), lb-anchor_W/2, ycenter-50, 255);
-        Screen(theWindow,'DrawText', double('매우 그렇다'), rb-anchor_W2/2, ycenter-50, 255);
+        Screen(theWindow,'DrawText', double('전혀'), lb-anchor_W/2, ycenter+20, 255);
+        Screen(theWindow,'DrawText', double('최대'), rb-anchor_W2/2, ycenter+20, 255);
         
         Screen('TextSize', theWindow, fontsize); % fonsize for instructions
 end

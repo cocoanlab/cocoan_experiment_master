@@ -1,4 +1,4 @@
-function draw_social_cue(m, std, n, rating_type)
+function [xx, th] = draw_social_cue(m, std, n, rating_type)
 
 global theWindow W H; % window property
 global white red orange bgcolor; % color
@@ -9,7 +9,9 @@ radius = (rb-lb)/2; % radius
 
 draw_scale(rating_type);
 
-semicircular = strcmp(overall_types, 'overall_avoidance_semicircular');
+semicircular = strcmp(rating_type, 'overall_avoidance_semicircular');
+xx = [];
+th = [];
 
 if semicircular   	
     
@@ -17,12 +19,14 @@ if semicircular
         th = deg2rad(m * 180); % convert 0-1 values to 0-180 degree
     else
         th = deg2rad(normrnd(m, std, n, 1) * 180); % convert 0-1 values to 0-180 degree
+        th(th > 180) = 180;
+        th(th < 0) = 0;
     end
     
     x = radius*cos(th)+cir_center(1);
     y = cir_center(2)-radius*sin(th);
     
-    Screen('DrawDots', theWindow, [x y], 7, red, [0 0], 1);  %dif color
+    Screen('DrawDots', theWindow, [x y]', 8, red, [0 0], 1);  %dif color
     
 else
     
@@ -30,9 +34,15 @@ else
         x = m * (rb-lb) + lb;
     else
         x = (normrnd(m, std, n,1))*(rb-lb) + lb;
+        x(x<lb) = lb; x(x>rb) = rb;
     end
-        
-    Screen('DrawLine', theWindow, red, x, H/2-scale_H, x, H/2+scale_H, 6);
+    
+    xx = (x-lb)./(rb-lb);
+    if n==1
+        Screen('DrawLines', theWindow, [reshape(repmat(x, 1, 2)', 1, []); repmat([H/2 H/2+scale_H], 1, n)], 6, red);    %thick
+    else
+        Screen('DrawLines', theWindow, [reshape(repmat(x, 1, 2)', 1, []); repmat([H/2 H/2+scale_H], 1, n)], 2, red);
+    end
     
 end
 

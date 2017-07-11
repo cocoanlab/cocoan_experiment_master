@@ -111,7 +111,7 @@ use_joystick = false;
 % need to be specified differently for different computers
 % psytool = 'C:\toolbox\Psychtoolbox';
 scriptdir = 'C:\Users\cnir\Documents\...';
-savedir = 'data';
+savedir = 'CPS_data';
 
 for i = 1:length(varargin)
     if ischar(varargin{i})
@@ -141,8 +141,6 @@ for i = 1:length(varargin)
                 use_joystick = true;
             case {'mouse', 'trackball'}
                 % do nothing
-            case {'savedir'}
-                savedir = varargin{i+1};
         end
     end
 end
@@ -158,15 +156,15 @@ bgcolor = 100;
 
 if testmode
     window_num = 0;
-%     window_rect = [1 1 1024 500]; % in the test mode, use a little smaller screen
-    window_rect = [0 0 1900 1200];
+    window_rect = [1 1 1600 900]; % in the test mode, use a little smaller screen
+    % window_rect = [0 0 1900 1200];
     fontsize = 20;
 else
     screens = Screen('Screens');
     window_num = screens(end); % the last window
     window_info = Screen('Resolution', window_num); 
     window_rect = [0 0 window_info.width window_info.height]; % full screen
-    fontsize = 33;
+    fontsize = 32;
 end
 
 W = window_rect(3); %width of screen
@@ -175,7 +173,7 @@ H = window_rect(4); %height of screen
 font = 'NanumBarunGothic';
 
 white = 255;
-red = [158 1 66];
+red = [255 0 0];
 orange = [255 164 0];
 
 % % rating scale left and right bounds 1/4 and 3/4
@@ -189,7 +187,7 @@ rb = 3.5*W/5; % in 1280, it's 896 rb-lb = 512
 % rating scale upper and bottom bounds 
 tb = H/5+100;           % in 800, it's 210
 bb = H/2+100;           % in 800, it's 450, bb-tb = 240
-scale_H = (bb-tb).*0.15;
+scale_H = (bb-tb).*0.25;
 
 anchor_xl = lb-80; % 284
 anchor_xr = rb+20; % 916
@@ -228,9 +226,9 @@ try
     % START: Screen
 	theWindow = Screen('OpenWindow', window_num, bgcolor, window_rect); % start the screen
     Screen('Preference','TextEncodingLocale','ko_KR.UTF-8');
-    Screen('TextFont', theWindow, font); % setting font
+    %Screen('TextFont', theWindow, font); % setting font
     Screen('TextSize', theWindow, fontsize);
-    HideCursor;
+    if ~testmode, HideCursor; end
     
     % EXPLAIN SCALES
     if doexplain_scale
@@ -325,7 +323,7 @@ try
                     social_m = stimtext{2}(1);
                     social_sd = stimtext{2}(2);
                     social_n = stimtext{2}(3);
-                    draw_social_cue(social_m, social_sd, social_n, rating_types.dooverall{run_i}{tr_i}{1}); % use the first rating_type in "dooverall"
+                    [data.dat{run_i}{tr_i}.cue_x, data.dat{run_i}{tr_i}.cue_theta] = draw_social_cue(social_m, social_sd, social_n, rating_types.dooverall{run_i}{tr_i}{1}); % use the first rating_type in "dooverall"
                 else
                     DrawFormattedText(theWindow, double(stimtext), 'center', 'center', white, [], [], [], 1.2);
                 end
@@ -347,7 +345,8 @@ try
             try
                 stimtext = trial_sequence{run_i}{tr_i}{9};
             catch
-                stimtext = '+';
+                stimtext = ' '; 
+                % stimtext = '+';
             end
             
             Screen(theWindow,'FillRect', bgcolor, window_rect); 
@@ -380,14 +379,14 @@ try
             start_t = GetSecs; 
 
             % read message from PPD
-            if strcmp(type, 'PP')
-                message_1 = deblank(fscanf(r));
-                if strcmp(message_1,'Read Error')
-                    error(message_1);
-                else
-                    data.dat{run_i}{tr_i}.logfile = message_1;
-                end
-            end
+%             if strcmp(type, 'PP')
+%                 message_1 = deblank(fscanf(r));
+%                 if strcmp(message_1,'Read Error')
+%                     error(message_1);
+%                 else
+%                     data.dat{run_i}{tr_i}.logfile = message_1;
+%                 end
+%             end
             
             rec_i = 0;
             
@@ -435,13 +434,13 @@ try
             end
 
             % make sure if the pressure stimulus ends
-            if strcmp(type, 'PP')
-                message_2 = deblank(fscanf(r));
-                if ~strcmp(message_2, 's')
-                    disp(message_2);
-                    error('message_2 is not s.');
-                end 
-            end
+%             if strcmp(type, 'PP')
+%                 message_2 = deblank(fscanf(r));
+%                 if ~strcmp(message_2, 's')
+%                     disp(message_2);
+%                     error('message_2 is not s.');
+%                 end 
+%             end
             
             end_t = GetSecs;
             data.dat{run_i}{tr_i}.total_dur_recorded = end_t - start_t;
@@ -493,7 +492,7 @@ try
                 abort_man;
             end
             
-            display_runending_message(run_i, run_num, dofmri);
+            display_runending_message(run_i, run_num);
         end
         
     end % run ends
@@ -510,7 +509,9 @@ try
 catch err
     % ERROR 
     disp(err);
-    disp(err.stack(end));
+    for i = 1:numel(err.stack)
+        disp(err.stack(i));
+    end
     fclose(t);
     fclose(r);
     abort_error; 
@@ -530,7 +531,7 @@ EXP_start_text = double('실험자는 모든 것이 잘 준비되었는지 체크해주세요 (Biopac
 
 % display
 Screen(theWindow,'FillRect',bgcolor, window_rect);
-DrawFormattedText(theWindow, EXP_start_text, 'center', 'center', white, [], [], [], 1.2);
+DrawFormattedText(theWindow, EXP_start_text, 'center', 'center', white, [], [], [], 1.5);
 Screen('Flip', theWindow);
 
 end
@@ -556,7 +557,7 @@ end
 
 % display
 Screen(theWindow,'FillRect',bgcolor, window_rect);
-DrawFormattedText(theWindow, Run_start_text, 'center', 'center', white, [], [], [], 1.2);
+DrawFormattedText(theWindow, Run_start_text, 'center', 'center', white, [], [], [], 1.5);
 Screen('Flip', theWindow);
 
 end
@@ -576,7 +577,7 @@ else
 end
     
 Screen(theWindow,'FillRect',bgcolor, window_rect);
-DrawFormattedText(theWindow, Run_end_text, 'center', 'center', white, [], [], [], 1.2);
+DrawFormattedText(theWindow, Run_end_text, 'center', 'center', white, [], [], [], 1.5);
 Screen('Flip', theWindow);
 
 end
@@ -604,7 +605,7 @@ function PP_int = pressure_pain_setup
 
 global t r; % pressure device udp channel
 
-PP_int = {'0004', '0005', '0006', '0007'}; % kg/cm2
+PP_int = {'03.5', '04.5', '05.5', '06.5'}; % kg/cm2
 delete(instrfindall); %clear out old channels
 
 try
@@ -652,7 +653,7 @@ function show_cont_prompt(cont_types, rating_types)
 global theWindow orange;
 
 i = strcmp(rating_types.alltypes, cont_types); % which one?
-DrawFormattedText(theWindow, double(rating_types.prompts{i}), 'center', 'center', orange, [], [], [], 1.2);
+DrawFormattedText(theWindow, double(rating_types.prompts{i}), 'center', 'center', orange, [], [], [], 1.5);
 draw_scale(cont_types);
 
 end

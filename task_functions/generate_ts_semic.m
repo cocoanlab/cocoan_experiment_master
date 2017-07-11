@@ -122,7 +122,11 @@ switch session_n
         
         if exist('data', 'var')
             for trial_i = 1:numel(data.dat{1})
-                rating_lv{str2double(data.dat{1}{trial_i}.intensity(end))}(end+1) = data.dat{1}{trial_i}.overall_avoidance_rating;
+                if semicircular
+                    rating_lv{str2double(data.dat{1}{trial_i}.intensity(end))}(end+1) = data.dat{1}{trial_i}.overall_avoidance_semicircular_rating_r_theta(:,2);
+                else
+                    rating_lv{str2double(data.dat{1}{trial_i}.intensity(end))}(end+1) = data.dat{1}{trial_i}.overall_avoidance_rating;
+                end
             end
         else
             warning('There is no data file. It will use a fake data.');
@@ -134,16 +138,17 @@ switch session_n
         ref_mean = cellfun(@mean, rating_lv)';
         ref_bounds = [ref_mean - mean(diff(ref_mean)) ref_mean + mean(diff(ref_mean))]; % column 1: lower bound, column 2: upper bound
         
-        std=[.02 .1];
+        std=[.03 .05 .12 .14];
         
         for i = 1:3
             temp_bounds(i,:) = linspace(ref_bounds(i,1), ref_bounds(i,2), 3);
             [A,B] = meshgrid(temp_bounds(i,:), std);
-            ref(6*i-5:6*i, :) = reshape(cat(2, A', B'), [], 2);
+            temp_pair = reshape(cat(2, A', B'), [], 2);
+            ref(6*i-5:6*i, :) = temp_pair([randperm(6,3) randperm(6,3)+6],:);
         end
         
         for l = 1:size(ref,1)
-            S3{7}{l,1} = [S3{2}(1) {'draw_social_cue', [ref(l,1), ref(l,2), 20]}];
+            S3{7}{l,1} = [S3{2}(1) {'draw_social_cue', [ref(l,1), ref(l,2)+(rand/30-(1/30)/2), 20]}]; % add a little randomness
         end
         
         trial_n = 18;
