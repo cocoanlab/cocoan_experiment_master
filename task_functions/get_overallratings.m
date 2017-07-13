@@ -55,8 +55,6 @@ start_center = strcmp(overall_types, 'overall_aversive_ornot') || ...
 semicircular = strcmp(overall_types, 'overall_avoidance_semicircular');
 cir_center = [(rb+lb)/2, bb];
 
-if semicircular, time_for_rating = 7; end
-
 if start_center || semicircular
     SetMouse(cir_center(1), cir_center(2)); % set mouse at the center
     lb2 = W/3; rb2 = (W*2)/3; % new bound for or not
@@ -88,11 +86,11 @@ while (1) % button
     if use_joystick
         [joy_pos, joy_button] = mat_joy(0);
         
-        if ornot
+        if start_center
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb2-lb2) + (rb2+lb2)/2; % both direction
-        elseif circular
+        elseif semicircular
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction in x
-            y = (joy_pos(2)-start_joy_pos_y) ./ joy_speed .* (bb-tb) + tb; % upwards in the y direction
+            y = (joy_pos(2)-start_joy_pos_y) ./ joy_speed .* (-(rb+lb)/2) + bb; % upwards in the y direction
         else
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
         end
