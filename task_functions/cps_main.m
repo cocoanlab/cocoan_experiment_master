@@ -605,7 +605,7 @@ function PP_int = pressure_pain_setup
 
 global t r; % pressure device udp channel
 
-PP_int = {'03.5', '04.5', '05.5', '06.5'}; % kg/cm2
+PP_int = {'0004', '0005', '0006', '0007'}; % kg/cm2
 delete(instrfindall); %clear out old channels
 
 try

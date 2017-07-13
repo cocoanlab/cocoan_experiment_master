@@ -18,9 +18,10 @@ if semicircular
     if n == 1
         th = deg2rad(m * 180); % convert 0-1 values to 0-180 degree
     else
-        th = deg2rad(normrnd(m, std, n, 1) * 180); % convert 0-1 values to 0-180 degree
-        th(th > 180) = 180;
-        th(th < 0) = 0;
+        deg = 180-normrnd(m, std, n, 1)*180; % convert 0-1 values to 0-180 degree
+        deg(deg > 180) = 180;
+        deg(deg < 0) = 0;
+        th = deg2rad(deg); 
     end
     
     x = radius*cos(th)+cir_center(1);

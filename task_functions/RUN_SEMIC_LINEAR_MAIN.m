@@ -3,22 +3,19 @@
 close all;
 clear;
 exp = {'overall_avoidance'};
-%ts = generate_ts_cps;
+scriptdir = 'C:\Users\Cocoan Lab WD03\Desktop\cocoan_experiment_master-master\task_functions';
 ts = generate_ts_semic(1, 'linear');
-cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', pwd, 'biopac');
+cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', scriptdir, 'biopac'); %data = ?
 
 %% Linear session 2:  pain reference
 
 close all;
-exp = {'overall_avoidance'};
-%ts = generate_ts_cps;
 ts = generate_ts_semic(2, 'linear');
-data = cps_main(ts, 'fmri', 'scriptdir', pwd, 'biopac');
+data = cps_main(ts, 'fmri', 'scriptdir', scriptdir, 'biopac');
 
 %% Linear session 3: social + pain
 
 close all;
-exp = {'overall_avoidance'};
-%ts = generate_ts_cps;
 ts = generate_ts_semic(3, 'linear', 'data', data);
-cps_main(ts, 'fmri', 'scriptdir', pwd, 'biopac');
+ts(2:3) = []; % delete run 2 and 3
+cps_main(ts, 'fmri', 'scriptdir', scriptdir, 'biopac');

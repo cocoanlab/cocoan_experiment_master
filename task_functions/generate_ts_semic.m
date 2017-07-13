@@ -130,9 +130,9 @@ switch session_n
             end
         else
             warning('There is no data file. It will use a fake data.');
-            rating_lv{1} = .5;
-            rating_lv{2} = .7;
-            rating_lv{3} = .9;
+            rating_lv{1} = .2;
+            rating_lv{2} = .35;
+            rating_lv{3} = .5;
         end
         
         ref_mean = cellfun(@mean, rating_lv)';
@@ -147,8 +147,8 @@ switch session_n
             ref(6*i-5:6*i, :) = temp_pair([randperm(6,3) randperm(6,3)+6],:);
         end
         
-        for l = 1:size(ref,1)
-            S3{7}{l,1} = [S3{2}(1) {'draw_social_cue', [ref(l,1), ref(l,2)+(rand/30-(1/30)/2), 20]}]; % add a little randomness
+        for ii = 1:size(ref,1)
+            S3{7}{ii,1} = [S3{2}(ii) {'draw_social_cue', [ref(ii,1), ref(ii,2)+(rand/30-(1/30)/2), 20]}]; % add a little randomness
         end
         
         trial_n = 18;
