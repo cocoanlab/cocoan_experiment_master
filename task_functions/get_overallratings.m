@@ -3,7 +3,7 @@ function data = get_overallratings(overall_types, data, rating_types, run_i, tr_
 % data = get_overallratings(overall_types, data, rating_types, run_i, tr_i)
 
 global theWindow W H; % window property
-global white red orange bgcolor; % color
+global white red orange yellow bgcolor; % color
 global window_rect prompt_ex tb bb lb rb scale_H anchor_y anchor_y2 anchor promptW promptH joy_speed; % rating scale
 
 use_joystick = false;
@@ -52,8 +52,11 @@ start_center = strcmp(overall_types, 'overall_aversive_ornot') || ...
     strcmp(overall_types, 'overall_resting_past') || ...
     strcmp(overall_types, 'overall_resting_future');
 
-semicircular = strcmp(overall_types, 'overall_avoidance_semicircular');
+semicircular = contains(overall_types, 'semicircular');
+
 cir_center = [(rb+lb)/2, bb];
+
+if semicircular, time_for_rating = 7; end
 
 if start_center || semicircular
     SetMouse(cir_center(1), cir_center(2)); % set mouse at the center
@@ -86,11 +89,11 @@ while (1) % button
     if use_joystick
         [joy_pos, joy_button] = mat_joy(0);
         
-        if start_center
+        if ornot
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb2-lb2) + (rb2+lb2)/2; % both direction
-        elseif semicircular
+        elseif circular
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + (rb+lb)/2; % both direction in x
-            y = (joy_pos(2)-start_joy_pos_y) ./ joy_speed .* (-(rb+lb)/2) + bb; % upwards in the y direction
+            y = (joy_pos(2)-start_joy_pos_y) ./ joy_speed .* (bb-tb) + tb; % upwards in the y direction
         else
             x = (joy_pos(1)-start_joy_pos) ./ joy_speed .* (rb-lb) + lb; % only right direction
         end
@@ -217,10 +220,10 @@ end_t = GetSecs;
 draw_scale(overall_types); % draw scale
 if semicircular
     DrawFormattedText(theWindow, rating_types.prompts{i}, 'center', 150, white, [], [], [], 1.2);
-    Screen('DrawDots', theWindow, [x y], dotsize, red, [0 0], 1);
+    Screen('DrawDots', theWindow, [x y], dotsize, yellow, [0 0], 1);
 else
     DrawFormattedText(theWindow, rating_types.prompts{i}, 'center', 150, white, [], [], [], 1.2);
-    Screen('DrawLine', theWindow, red, x, H/2, x, H/2+scale_H, 6);
+    Screen('DrawLine', theWindow, yellow, x, H/2, x, H/2+scale_H, 6);
 end
 
 Screen('Flip', theWindow);

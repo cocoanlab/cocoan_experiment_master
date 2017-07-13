@@ -34,9 +34,9 @@ switch session_n
         S1{7} = repmat({{'draw_social_cue', [.2, 0, 1]}; {'draw_social_cue', [.4, 0, 1]}; {'draw_social_cue', [.6, 0, 1]}; {'draw_social_cue', [.8, 0, 1]}}, 5, 1);
         
         if semicircular
-            S1{4} = repmat({'overall_avoidance_semicircular'}, 20, 1);
+            S1{4} = repmat({'overall_motor_semicircular'}, 20, 1);
         else
-            S1{4} = repmat({'overall_avoidance'}, 20, 1); 
+            S1{4} = repmat({'overall_motor'}, 20, 1); 
         end
         
         trial_n = 20;

@@ -7,27 +7,17 @@ function ljHandle = BIOPAC_setup(channel_n)
 
 BIOPAC_ON = 1;
 BIOPAC_OFF = 0;
-try
-    LJ_dtU3 = 3;
-    LJ_ctUSB = 1;
-    LJ_ioPIN_CONFIGURATION_RESET = 2017; % U3
-    LJ_ioPUT_DIGITAL_BIT = 40; % UE9 + U3
-    
-    ljud_LoadDriver; % Loads LabJack UD Function Library
-    %ljud_Constants; % Loads LabJack UD constant file
-    
-    [Error, ljHandle] = ljud_OpenLabJack(LJ_dtU3, LJ_ctUSB,'1',1); % Returns ljHandle for open LabJack
-catch
-    LJ_dtU3 = 3;
-    LJ_ctUSB = 1;
-    LJ_ioPIN_CONFIGURATION_RESET = 2017; % U3
-    LJ_ioPUT_DIGITAL_BIT = 40; % UE9 + U3
-    
-    ljud_LoadDriver; % Loads LabJack UD Function Library
-    %ljud_Constants; % Loads LabJack UD constant file
-    
-    [Error, ljHandle] = ljud_OpenLabJack(LJ_dtU3, LJ_ctUSB,'1',1); % Returns ljHandle for open LabJack
-end
+
+LJ_dtU3 = 3;
+LJ_ctUSB = 1;
+LJ_ioPIN_CONFIGURATION_RESET = 2017; % U3
+LJ_ioPUT_DIGITAL_BIT = 40; % UE9 + U3
+
+ljud_LoadDriver; % Loads LabJack UD Function Library
+%ljud_Constants; % Loads LabJack UD constant file
+
+[Error, ljHandle] = ljud_OpenLabJack(LJ_dtU3, LJ_ctUSB,'1',1); % Returns ljHandle for open LabJack
+
 Error_Message(Error) % Check for and display any Errros
 
 %Start by using the pin_configuration_reset IOType so that all

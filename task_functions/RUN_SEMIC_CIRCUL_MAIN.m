@@ -3,21 +3,20 @@
 close all;
 clear;
 exp = {'overall_avoidance_semicircular'};
-scriptdir = 'C:\Users\Cocoan Lab WD03\Desktop\cocoan_experiment_master-master\task_functions';
+scriptdir = 'C:\Users\Cocoan Lab WD02\Documents\Experiments\cocoan_experiment_master\task_functions';
 ts = generate_ts_semic(1, 'semicircular');
-cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', scriptdir, 'biopac');
+cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', scriptdir, 'biopac'); %data = ?
 
-%% Semicircular session 2: pain reference
+%% Semicircular session 1: pain reference
 
 close all;
 ts = generate_ts_semic(2, 'semicircular');
 data = cps_main(ts, 'fmri', 'scriptdir', scriptdir, 'biopac');
 
-%% Semicircular session 3: social + pain
+%% Semicircular session 2: social + pain
 
 close all;
 ts = generate_ts_semic(3, 'semicircular', 'data', data);
-ts(2:3) = []; % delete run 2 and 3
 cps_main(ts, 'fmri', 'scriptdir', scriptdir, 'biopac');
 
 % 

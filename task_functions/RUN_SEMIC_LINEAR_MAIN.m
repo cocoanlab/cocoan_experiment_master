@@ -3,7 +3,7 @@
 close all;
 clear;
 exp = {'overall_avoidance'};
-scriptdir = 'C:\Users\Cocoan Lab WD03\Desktop\cocoan_experiment_master-master\task_functions';
+scriptdir = 'C:\Users\Cocoan Lab WD02\Documents\Experiments\cocoan_experiment_master\task_functions';
 ts = generate_ts_semic(1, 'linear');
 cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', scriptdir, 'biopac'); %data = ?
 

@@ -9,7 +9,8 @@ radius = (rb-lb)/2; % radius
 
 draw_scale(rating_type);
 
-semicircular = strcmp(rating_type, 'overall_avoidance_semicircular');
+semicircular = contains(rating_type, 'semicircular');
+
 xx = [];
 th = [];
 

@@ -92,7 +92,7 @@ function data = cps_main(trial_sequence, varargin)
 
 %% SETUP: global
 global theWindow W H; % window property
-global white red orange bgcolor; % color
+global white red orange yellow bgcolor; % color
 global t r; % pressure device udp channel
 global window_rect lb rb tb bb scale_H anchor_y joy_speed; % rating scale
 global anchor_xl anchor_xr anchor_yu anchor_yd fontsize;
@@ -152,7 +152,7 @@ addpath(scriptdir); cd(scriptdir);
 %% SETUP: Screen
 if exist('data', 'var'), clear data; end
 
-bgcolor = 100;
+bgcolor = 80;
 
 if testmode
     window_num = 0;
@@ -175,6 +175,7 @@ font = 'NanumBarunGothic';
 white = 255;
 red = [255 0 0];
 orange = [255 164 0];
+yellow = [255 220 0];
 
 % % rating scale left and right bounds 1/4 and 3/4
 % lb = W/4; 

@@ -441,6 +441,35 @@ switch scale
         Screen(theWindow,'DrawText', double('최대'), rb-anchor_W2/2, ycenter+20, 255);
         
         Screen('TextSize', theWindow, fontsize); % fonsize for instructions
+    case 'overall_motor'
+        xy = [lb H/2+scale_H; rb H/2+scale_H; rb H/2];
+        Screen(theWindow, 'FillPoly', 255, xy);
+        Screen('TextSize', theWindow, 28); % fonsize for anchors
+        Screen(theWindow,'DrawText',double('전혀'),lb-35,anchor_y,255);
+        Screen(theWindow,'DrawText',double('최대'),rb,anchor_y,255);
+        Screen('TextSize', theWindow, fontsize); % fonsize for anchors
+        % Screen('Flip', theWindow);
+        
+	case 'overall_motor_semicircular'
+        xcenter = (lb+rb)/2;
+        ycenter = bb;
+        
+        radius = (rb-lb)/2; % radius
+        x = reshape(repmat(linspace(lb,rb,1000),2,1),1,2000); x([1 2000]) = [];
+        xy = [x; bb - sqrt(radius.^2 - (x-xcenter).^2)];
+        
+        Screen('TextSize', theWindow, 28); % fonsize for anchors
+        
+        anchor_W = Screen(theWindow,'DrawText', double('전혀'), 0, 0, bgcolor);
+        anchor_W2 = Screen(theWindow,'DrawText', double('최대'), 0, 0, bgcolor);
+        
+        % Screen(theWindow, 'FillRect', bgcolor, window_rect); % reset
+        Screen(theWindow,'DrawLines', xy, 3, 255);
+        
+        Screen(theWindow,'DrawText', double('전혀'), lb-anchor_W/2, ycenter+20, 255);
+        Screen(theWindow,'DrawText', double('최대'), rb-anchor_W2/2, ycenter+20, 255);
+        
+        Screen('TextSize', theWindow, fontsize); % fonsize for instructions
 end
 
 end     
