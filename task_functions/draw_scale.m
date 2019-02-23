@@ -441,6 +441,8 @@ switch scale
         Screen(theWindow,'DrawText', double('√÷¥Î'), rb-anchor_W2/2, ycenter+20, 255);
         
         Screen('TextSize', theWindow, fontsize); % fonsize for instructions
+        
+   
     case 'overall_motor'
         xy = [lb H/2+scale_H; rb H/2+scale_H; rb H/2];
         Screen(theWindow, 'FillPoly', 255, xy);

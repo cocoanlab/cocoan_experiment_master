@@ -3,9 +3,9 @@
 close all;
 clear;
 exp = {'overall_avoidance_semicircular'};
-scriptdir = 'C:\Users\Cocoan Lab WD02\Documents\Experiments\cocoan_experiment_master\task_functions';
+scriptdir = '/Users/cocoan/Dropbox/github/cocoan_experiment_master/task_functions';
 ts = generate_ts_semic(1, 'semicircular');
-cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', scriptdir, 'biopac'); %data = ?
+cps_main(ts, 'fmri', 'explain_scale', exp, 'scriptdir', scriptdir, 'biopac', 'test'); %data = ?
 
 %% Semicircular session 1: pain reference
 
