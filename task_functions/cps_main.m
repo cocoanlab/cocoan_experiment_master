@@ -93,9 +93,9 @@ function data = cps_main(trial_sequence, varargin)
 %% SETUP: global
 global theWindow W H; % window property
 global white red orange yellow bgcolor; % color
+global t r; % pressure device udp channel
 global window_rect lb rb tb bb scale_H anchor_y joy_speed; % rating scale
 global anchor_xl anchor_xr anchor_yu anchor_yd fontsize;
-global ip port; % Thermal pain device
 
 %% Parse varargin
 post_stimulus_t = 5; % post-stimulus continuous rating seconds
@@ -110,7 +110,7 @@ use_joystick = false;
 
 % need to be specified differently for different computers
 % psytool = 'C:\toolbox\Psychtoolbox';
-scriptdir = '/Users/cocoan/Dropbox/github/';
+scriptdir = 'C:\Users\cnir\Documents\...';
 savedir = 'CPS_data';
 
 for i = 1:length(varargin)
@@ -130,7 +130,7 @@ for i = 1:length(varargin)
                 psytool = varargin{i+1};
             case {'fmri'}
                 dofmri = true;
-            case {'biopac1'}
+            case {'biopac'}
                 USE_BIOPAC = true;
                 channel_n = 3;
                 biopac_channel = 0;
@@ -156,8 +156,8 @@ bgcolor = 80;
 
 if testmode
     window_num = 0;
-    window_rect = [1 1 1500 800]; % in the test mode, use a little smaller screen
-    %window_rect = [0 0 1900 1200];
+    window_rect = [1 1 1600 900]; % in the test mode, use a little smaller screen
+    % window_rect = [0 0 1900 1200];
     fontsize = 20;
 else
     screens = Screen('Screens');
@@ -219,7 +219,7 @@ lvs = {'LV1', 'LV2', 'LV3', 'LV4'}; % you can add more..
 
 %% SETUP: STIMULI -- modify this for each study
 PP_int = pressure_pain_setup; % see subfunctions
-%TP_int = Thermal_pain_setup;
+players = auditory_setup;
 
 %% START
 
@@ -278,9 +278,9 @@ try
                 
                 if dofmri
                     % gap between 5 key push and the first stimuli (disdaqs: data.disdaq_sec)
-                    % 5 seconds: "ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½..."
+                    % 5 seconds: "ì‹œì‘í•©ë‹ˆë‹¤..."
                     Screen(theWindow, 'FillRect', bgcolor, window_rect);
-                    DrawFormattedText(theWindow, double('½ÃÀÛÇÕ´Ï´Ù...'), 'center', 'center', white, [], [], [], 1.2);
+                    DrawFormattedText(theWindow, double('ì‹œì‘í•©ë‹ˆë‹¤...'), 'center', 'center', white, [], [], [], 1.2);
                     Screen('Flip', theWindow);
                     data.dat{run_i}{tr_i}.runscan_starttime = GetSecs;
                     WaitSecs(4);
@@ -346,8 +346,8 @@ try
             try
                 stimtext = trial_sequence{run_i}{tr_i}{9};
             catch
-                % stimtext = ' '; 
-                stimtext = '+';
+                stimtext = ' '; 
+                % stimtext = '+';
             end
             
             Screen(theWindow,'FillRect', bgcolor, window_rect); 
@@ -369,7 +369,7 @@ try
             data.dat{run_i}{tr_i}.stim_timestamp = GetSecs;
             
             % HERE: STIMULATION ------------------------------------------
-            if strcmp(type, 'TP') % pressure pain
+            if strcmp(type, 'PP') % pressure pain
                 eval(['fwrite(t, ''1,' PP_int{strcmp(lvs, int)} ',t'');']);
             elseif strcmp(type, 'AU') % aversive auditory
                 play(players{strcmp(lvs, int)});
@@ -528,7 +528,7 @@ function display_expmessage
 
 global theWindow white bgcolor window_rect; % rating scale
 
-EXP_start_text = double('½ÇÇèÀÚ´Â ¸ğµç °ÍÀÌ Àß ÁØºñµÇ¾ú´ÂÁö Ã¼Å©ÇØÁÖ¼¼¿ä (Biopac, PPD, µîµî) rr. \n¸ğµÎ ÁØºñµÇ¾úÀ¸¸é SPACE BAR¸¦ ´­·¯ÁÖ¼¼¿ä.');
+EXP_start_text = double('ì‹¤í—˜ìëŠ” ëª¨ë“  ê²ƒì´ ì˜ ì¤€ë¹„ë˜ì—ˆëŠ”ì§€ ì²´í¬í•´ì£¼ì„¸ìš” (Biopac, PPD, ë“±ë“±).\nëª¨ë‘ ì¤€ë¹„ë˜ì—ˆìœ¼ë©´, ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆŒëŸ¬ì£¼ì„¸ìš”.');
 
 % display
 Screen(theWindow,'FillRect',bgcolor, window_rect);
@@ -548,11 +548,11 @@ global theWindow white bgcolor window_rect; % rating scale
 
 if dofmri
     if run_i <= run_num % you can customize the run start message using run_num and run_i
-        Run_start_text = double('ÇÇÇèÀÚ°¡ ÁØºñµÇ¾úÀ¸¸é ÀÌ¹ÌÂ¡À» ½ÃÀÛÇÕ´Ï´Ù (s).');
+        Run_start_text = double('í”¼í—˜ìê°€ ì¤€ë¹„ë˜ì—ˆìœ¼ë©´, ì´ë¯¸ì§•ì„ ì‹œì‘í•©ë‹ˆë‹¤ (s).');
     end
 else
     if run_i <= run_num
-        Run_start_text = double('ÇÇÇèÀÚ°¡ ÁØºñµÇ¾úÀ¸¸é, rÀ» ´­·¯ÁÖ¼¼¿ä.');
+        Run_start_text = double('í”¼í—˜ìê°€ ì¤€ë¹„ë˜ì—ˆìœ¼ë©´, rì„ ëˆŒëŸ¬ ì£¼ì„¸ìš”.');
     end
 end
 
@@ -572,9 +572,9 @@ global theWindow window_rect white bgcolor; % color
 % HERE: YOU CAN ADD MESSAGES FOR EACH RUN
 
 if run_i < run_num
-    Run_end_text = double([num2str(run_i) '¹ø ¼¼¼ÇÀ» ¸¶ÃÆ½À´Ï´Ù.\n ÇÇÇèÀÚ°¡ ´ÙÀ½ ¼¼¼ÇÀ» ÁøÇàÇÒ ÁØºñ°¡ µÇ¸é SPACE BAR¸¦ ´­·¯ÁÖ¼¼¿ä']);
+    Run_end_text = double([num2str(run_i) 'ë²ˆ ì„¸ì…˜ì„ ë§ˆì³¤ìŠµë‹ˆë‹¤.\ní”¼í—˜ìê°€ ë‹¤ìŒ ì„¸ì…˜ì„ ì§„í–‰í•  ì¤€ë¹„ê°€ ë˜ë©´, ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆŒëŸ¬ì£¼ì„¸ìš”.']);
 else
-    Run_end_text = double('½ÇÇèÀÇ ÀÌ¹ø ÆÄÆ®¸¦ ¸¶ÃÆ½À´Ï´Ù.\nÇÁ·Î±×·¥¿¡¼­ ³ª°¡±â À§ÇØ¼­´Â, SPACE BAR¸¦ ´­·¯ÁÖ¼¼¿ä.');
+    Run_end_text = double('ì‹¤í—˜ì˜ ì´ë²ˆ íŒŒíŠ¸ë¥¼ ë§ˆì³¤ìŠµë‹ˆë‹¤.\ní”„ë¡œê·¸ë¨ì—ì„œ ë‚˜ê°€ê¸° ìœ„í•´ì„œëŠ”, ìŠ¤í˜ì´ìŠ¤ë°”ë¥¼ ëˆŒëŸ¬ì£¼ì„¸ìš”.');
 end
     
 Screen(theWindow,'FillRect',bgcolor, window_rect);
@@ -600,7 +600,54 @@ data.dat{run_i}{tr_i}.scale = trial_sequence{run_i}{tr_i}{4};
 
 end
 
+function PP_int = pressure_pain_setup
 
+% pressure_pain_setup
+
+global t r; % pressure device udp channel
+
+PP_int = {'0004', '0005', '0006', '0007'}; % kg/cm2
+delete(instrfindall); %clear out old channels
+
+try
+    t=udp('localhost',61557); % open udp channels
+    r=udp('localhost',61158,'localport', 61556);
+    
+    fopen(t);
+    fopen(r);
+    fwrite(t, '0005,o'); % open the remote channel
+catch err
+    % ERROR
+    disp(err);
+    disp(err.stack(1));
+    disp(err.stack(2));
+    disp(err.stack(end));
+    fclose(t);
+    fclose(r);
+    abort_error;
+end
+end
+
+function players = auditory_setup
+
+% auditory_setup
+
+% fnames = filenames('knife_on_bottle_LV*');
+fnames = {'knife_on_bottle_LV1_-3dball_-8db2000Hz.wav',...
+    'knife_on_bottle_LV2_-3dball_-4db2000Hz.wav',...
+    'knife_on_bottle_LV3_-3dball_-1db2000Hz.wav',...
+    'knife_on_bottle_LV4.wav'};
+
+for i = 1:4
+    try
+        y = audioread(fnames{i});
+    catch
+        %y = wavread(fnames{i});
+    end
+    players{i} = audioplayer(y, 44100);
+end
+
+end
 
 function show_cont_prompt(cont_types, rating_types)
 
@@ -611,4 +658,3 @@ DrawFormattedText(theWindow, double(rating_types.prompts{i}), 'center', 'center'
 draw_scale(cont_types);
 
 end
-
